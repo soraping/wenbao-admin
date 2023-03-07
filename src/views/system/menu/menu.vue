@@ -92,20 +92,23 @@
             <n-form-item label="标题" path="label">
               <n-input placeholder="请输入标题" v-model:value="formParams.label" />
             </n-form-item>
-            <n-form-item label="副标题" path="subtitle">
+            <!-- <n-form-item label="副标题" path="subtitle">
               <n-input placeholder="请输入副标题" v-model:value="formParams.subtitle" />
-            </n-form-item>
-            <n-form-item label="路径" path="path">
+            </n-form-item> -->
+            <n-form-item label="跳转路径" path="path">
               <n-input placeholder="请输入路径" v-model:value="formParams.path" />
             </n-form-item>
-            <n-form-item label="打开方式" path="openType">
+            <n-form-item label="模块路径" path="component">
+              <n-input placeholder="请输入模块路径" v-model:value="formParams.component" />
+            </n-form-item>
+            <!-- <n-form-item label="打开方式" path="openType">
               <n-radio-group v-model:value="formParams.openType" name="openType">
                 <n-space>
                   <n-radio :value="1">当前窗口</n-radio>
                   <n-radio :value="2">新窗口</n-radio>
                 </n-space>
               </n-radio-group>
-            </n-form-item>
+            </n-form-item> -->
             <n-form-item label="菜单权限" path="auth">
               <n-input placeholder="请输入权限，多个权限用，分割" v-model:value="formParams.auth" />
             </n-form-item>
@@ -131,6 +134,7 @@
   import { DownOutlined, AlignLeftOutlined, SearchOutlined, FormOutlined } from '@vicons/antd';
   import { getMenuList } from '@/api/system/menu';
   import { getTreeItem } from '@/utils';
+  import { MenuTree } from '@/utils/menu'
   import CreateDrawer from './CreateDrawer.vue';
 
   const rules = {
@@ -155,7 +159,7 @@
 
   let expandedKeys = ref([]);
 
-  const treeData = ref([]);
+  const treeData = ref<any>([]);
 
   const loading = ref(true);
   const subLoading = ref(false);
@@ -188,6 +192,7 @@
     path: '',
     auth: '',
     openType: 1,
+    component: ''
   });
 
   function selectAddMenu(key: string) {
@@ -253,10 +258,11 @@
   }
 
   onMounted(async () => {
-    const treeMenuList = await getMenuList();
-    const keys = treeMenuList.map((item) => item.key);
+    let treeMenuList = await getMenuList();
+    let menuTrees = new MenuTree(treeMenuList).genMenuTree()
+    const keys = menuTrees.map((item) => item.key);
     Object.assign(formParams, keys);
-    treeData.value = treeMenuList;
+    treeData.value = menuTrees;
     loading.value = false;
   });
 
