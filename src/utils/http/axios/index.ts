@@ -239,7 +239,10 @@ function createAxios(opt?: Partial<CreateAxiosOptions>) {
         authenticationScheme: '',
         // 接口前缀
         prefixUrl: urlPrefix,
-        headers: { 'Content-Type': ContentTypeEnum.JSON },
+        headers: { 
+          'Content-Type': ContentTypeEnum.JSON,
+          'clientType': 'p'
+        },
         // 数据处理方式
         transform,
         // 配置项，下面的选项都可以在独立的接口请求中覆盖

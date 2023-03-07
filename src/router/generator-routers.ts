@@ -1,3 +1,4 @@
+import { filter } from 'lodash'
 import { adminMenus } from '@/api/system/menu';
 import { constantRouterIcon } from './router-icons';
 import { RouteRecordRaw } from 'vue-router';
@@ -16,22 +17,23 @@ LayoutMap.set('IFRAME', Iframe);
  * @param parent
  * @returns {*}
  */
-export const routerGenerator = (routerMap, parent?): any[] => {
+export const routerGenerator = (routerMap, parent?, allRouters?): any[] => {
   return routerMap.map((item) => {
+    item['children'] = getChildren(item['id'], allRouters)
     const currentRouter: any = {
       // 路由地址 动态拼接生成如 /dashboard/workplace
       path: `${(parent && parent.path) || ''}/${item.path}`,
       // 路由名称，建议唯一
-      name: item.name || '',
+      name: item.key || '',
       // 该路由对应页面的 组件
       component: item.component,
       // meta: 页面标题, 菜单图标, 页面权限(供指令权限用，可去掉)
       meta: {
-        ...item.meta,
-        label: item.meta.title,
-        icon: constantRouterIcon[item.meta.icon] || null,
-        permissions: item.meta.permissions || null,
-      },
+        label: item.name,
+        title: item.name,
+        icon: constantRouterIcon[item.icon] || null,
+        permissions: [item.permission] || null,
+      }
     };
 
     // 为了防止出现后端返回结果不规范，处理有可能出现拼接出两个 反斜杠
@@ -43,11 +45,14 @@ export const routerGenerator = (routerMap, parent?): any[] => {
       //如果未定义 redirect 默认第一个子路由为 redirect
       !item.redirect && (currentRouter.redirect = `${item.path}/${item.children[0].path}`);
       // Recursion
-      currentRouter.children = routerGenerator(item.children, currentRouter);
+      currentRouter.children = routerGenerator(item.children, currentRouter, allRouters);
     }
     return currentRouter;
   });
 };
+const getChildren = (parentId, routers) => {
+    return filter(routers, (route) => route['parent'] == parentId)
+}
 
 /**
  * 动态生成菜单
@@ -57,7 +62,9 @@ export const generatorDynamicRouter = (): Promise<RouteRecordRaw[]> => {
   return new Promise((resolve, reject) => {
     adminMenus()
       .then((result) => {
-        const routeList = routerGenerator(result);
+        // 先筛选出一级菜单
+        let parentRoutes = filter(result, (route) => !route['parent'])
+        const routeList = routerGenerator(parentRoutes, null, result);
         asyncImportRoute(routeList);
 
         resolve(routeList);
