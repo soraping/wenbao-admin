@@ -21,3 +21,16 @@ export function getMenuList(params?) {
     params,
   });
 }
+
+/**
+ * 新增菜单
+ * @param params 
+ * @returns 
+ */
+export function addMenu(params){
+  return http.request({
+    url: '/admin/user/menu/add',
+    method: 'POST',
+    params
+  })
+}

@@ -1,10 +1,5 @@
 <template>
   <div>
-    <!-- <div class="n-layout-page-header">
-      <n-card :bordered="false" title="菜单权限管理">
-        页面数据为 Mock 示例数据，非真实数据。
-      </n-card>
-    </div> -->
     <n-grid class="mt-4" cols="1 s:1 m:1 l:3 xl:3 2xl:3" responsive="screen" :x-gap="12">
       <n-gi span="1">
         <n-card :segmented="{ content: true }" :bordered="false" size="small">
@@ -77,51 +72,16 @@
             </n-space>
           </template>
           <n-alert type="info" closable> 从菜单列表选择一项后，进行编辑</n-alert>
-          <n-form
-            :model="formParams"
-            :rules="rules"
-            ref="formRef"
-            label-placement="left"
-            :label-width="100"
-            v-if="isEditMenu"
-            class="py-4"
-          >
-            <n-form-item label="类型" path="type">
-              <span>{{ formParams.type === 1 ? '侧边栏菜单' : '' }}</span>
-            </n-form-item>
-            <n-form-item label="标题" path="label">
-              <n-input placeholder="请输入标题" v-model:value="formParams.label" />
-            </n-form-item>
-            <!-- <n-form-item label="副标题" path="subtitle">
-              <n-input placeholder="请输入副标题" v-model:value="formParams.subtitle" />
-            </n-form-item> -->
-            <n-form-item label="跳转路径" path="path">
-              <n-input placeholder="请输入路径" v-model:value="formParams.path" />
-            </n-form-item>
-            <n-form-item label="模块路径" path="component">
-              <n-input placeholder="请输入模块路径" v-model:value="formParams.component" />
-            </n-form-item>
-            <!-- <n-form-item label="打开方式" path="openType">
-              <n-radio-group v-model:value="formParams.openType" name="openType">
-                <n-space>
-                  <n-radio :value="1">当前窗口</n-radio>
-                  <n-radio :value="2">新窗口</n-radio>
-                </n-space>
-              </n-radio-group>
-            </n-form-item> -->
-            <n-form-item label="菜单权限" path="auth">
-              <n-input placeholder="请输入权限，多个权限用，分割" v-model:value="formParams.auth" />
-            </n-form-item>
-            <n-form-item path="auth" style="margin-left: 100px">
-              <n-space>
-                <n-button type="primary" :loading="subLoading" @click="formSubmit"
-                  >保存修改</n-button
-                >
-                <n-button @click="handleReset">重置</n-button>
-                <n-button @click="handleDel">删除</n-button>
-              </n-space>
-            </n-form-item>
-          </n-form>
+          <MenuForm :form-params="formParams" :isEditMenu="isEditMenu" ref="menuFormRef" ></MenuForm>
+          <template #footer>
+            <n-space v-show="isEditMenu">
+              <n-button type="primary" :loading="subLoading" @click="formSubmit"
+                >保存修改</n-button
+              >
+              <n-button @click="handleReset">重置</n-button>
+              <n-button v-if="canShowRemoveButton" @click="handleDel">删除</n-button>
+            </n-space>
+          </template>
         </n-card>
       </n-gi>
     </n-grid>
@@ -136,28 +96,22 @@
   import { getTreeItem } from '@/utils';
   import { MenuTree } from '@/utils/menu'
   import CreateDrawer from './CreateDrawer.vue';
+  import MenuForm from './menuForm.vue'
 
-  const rules = {
-    label: {
-      required: true,
-      message: '请输入标题',
-      trigger: 'blur',
-    },
-    path: {
-      required: true,
-      message: '请输入路径',
-      trigger: 'blur',
-    },
-  };
-
-  const formRef: any = ref(null);
   const createDrawerRef = ref();
+  const menuFormRef = ref()
+
   const message = useMessage();
   const dialog = useDialog();
 
+  let formRef = ref()
   let treeItemKey = ref([]);
 
   let expandedKeys = ref([]);
+
+  // 是否展示删除菜单按钮
+  // 是否有子菜单，有则不展示
+  let canShowRemoveButton = ref(false)
 
   const treeData = ref<any>([]);
 
@@ -189,11 +143,16 @@
     type: 1,
     label: '',
     subtitle: '',
+    key: '',
     path: '',
     auth: '',
     openType: 1,
     component: ''
   });
+
+  onMounted(() => {
+    formRef.value = menuFormRef.value.formRef
+  })
 
   function selectAddMenu(key: string) {
     drawerTitle.value = key === 'home' ? '添加顶栏菜单' : `添加子菜单：${treeItemTitle.value}`;
@@ -212,6 +171,7 @@
       treeItemTitle.value = treeItem.label;
       Object.assign(formParams, treeItem);
       isEditMenu.value = true;
+      canShowRemoveButton.value = treeItem.children && treeItem.children.length ? false : true
     } else {
       isEditMenu.value = false;
       treeItemKey.value = [];
@@ -222,7 +182,7 @@
   function handleDel() {
     dialog.info({
       title: '提示',
-      content: `您确定想删除此权限吗?`,
+      content: `您确定想删除此菜单吗?`,
       positiveText: '确定',
       negativeText: '取消',
       onPositiveClick: () => {
