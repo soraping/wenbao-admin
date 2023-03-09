@@ -2,7 +2,7 @@ import { filter } from 'lodash'
 /**
  * 网络请求menu
  */
-interface IMenu {
+export interface IMenu {
     id: number
     name: string
     icon: string
@@ -21,6 +21,7 @@ interface IMenu {
  * 系统转换菜单数
  */
 interface IMenuTree {
+    id: number
     label: string
     path: string
     name: string
@@ -29,6 +30,8 @@ interface IMenuTree {
     component: string
     auth: string
     type: number
+    parent: number
+    icon: string
     meta: {
         label: string
         title: string
@@ -49,13 +52,16 @@ export class MenuTree {
 
     private converMenu(menu: Partial<IMenu>): Partial<IMenuTree>{
         return {
+            id: menu.id,
             label: menu.name,
             type: menu.type,
             key: menu.key,
             path: menu.path,
             auth: menu.permission,
             component: menu.component,
+            parent: menu.parent,
             children: this.getChildren(menu.id),
+            icon: menu.icon,
             meta: {
                 label: menu.name as string,
                 title: menu.name as string,
@@ -79,7 +85,7 @@ export class MenuTree {
             if(converData.children && converData.children.length > 0){
                 converData.children = that.buildTree(converData.children)
             }else{
-                converData.children = null
+                converData.children = null as any
             }
             return converData
         } )

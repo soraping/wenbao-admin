@@ -27,7 +27,7 @@ export function getMenuList(params?) {
  * @param params 
  * @returns 
  */
-export function addMenu(params){
+export function addMenu<T>(params: T){
   return http.request({
     url: '/admin/user/menu/add',
     method: 'POST',

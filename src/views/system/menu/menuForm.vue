@@ -20,10 +20,13 @@
           <n-input placeholder="请输入路径" v-model:value="formParams.path" />
         </n-form-item>
         <n-form-item label="模块路径" path="component">
-          <n-input placeholder="请输入模块路径" v-model:value="formParams.component" />
+          <n-input placeholder="请输入模块相对路径" v-model:value="formParams.component" />
         </n-form-item>
         <n-form-item label="菜单权限" path="auth">
           <n-input placeholder="请输入权限" v-model:value="formParams.auth" />
+        </n-form-item>
+        <n-form-item label="图标" path="icon">
+          <n-input placeholder="请输入图标名称" v-model:value="formParams.icon" />
         </n-form-item>
       </n-form>
 </template>

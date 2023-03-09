@@ -42,6 +42,7 @@ specifiers:
   mitt: ^3.0.0
   mockjs: ^1.1.0
   naive-ui: ^2.34.2
+  path-browserify: ^1.0.1
   pinia: ^2.0.23
   postcss: ^8.4.19
   prettier: ^2.7.1
@@ -85,6 +86,7 @@ dependencies:
   mitt: 3.0.0
   mockjs: 1.1.0
   naive-ui: registry.npmmirror.com/naive-ui/2.34.3_vue@3.2.45
+  path-browserify: registry.npmmirror.com/path-browserify/1.0.1
   pinia: 2.0.23_zwu2zepfy3m6u2gunxlolp35gi
   qs: 6.11.0
   vfonts: 0.0.3
@@ -7160,6 +7162,12 @@ packages:
       - supports-color
     dev: true
     optional: true
+
+  registry.npmmirror.com/path-browserify/1.0.1:
+    resolution: {integrity: sha512-b7uo2UCUOYZcnF/3ID0lulOJi/bafxa1xPe7ZPsammBSpjSWQkjNxlt635YGS2MiR9GjvuXCtz2emr3jbsz98g==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/path-browserify/-/path-browserify-1.0.1.tgz}
+    name: path-browserify
+    version: 1.0.1
+    dev: false
 
   registry.npmmirror.com/seemly/0.3.6:
     resolution: {integrity: sha512-lEV5VB8BUKTo/AfktXJcy+JeXns26ylbMkIUco8CYREsQijuz4mrXres2Q+vMLdwkuLxJdIPQ8IlCIxLYm71Yw==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/seemly/-/seemly-0.3.6.tgz}

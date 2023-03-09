@@ -1,6 +1,6 @@
 <template>
   <n-drawer v-model:show="isDrawer" :width="width" :placement="placement">
-    <DrawerContent :title="title" @closeDrawer="closeDrawer" ></DrawerContent>
+    <DrawerContent @closeDrawer="closeDrawer" ></DrawerContent>
   </n-drawer>
 </template>
 
@@ -12,10 +12,6 @@
     name: 'CreateDrawer',
     components: {DrawerContent},
     props: {
-      title: {
-        type: String,
-        default: '添加顶级菜单',
-      },
       width: {
         type: Number,
         default: 450,

@@ -85,11 +85,11 @@
         </n-card>
       </n-gi>
     </n-grid>
-    <CreateDrawer ref="createDrawerRef" :title="drawerTitle" />
+    <CreateDrawer ref="createDrawerRef" />
   </div>
 </template>
 <script lang="ts" setup>
-  import { ref, unref, reactive, onMounted, computed } from 'vue';
+  import { ref, unref, reactive, onMounted, computed, provide } from 'vue';
   import { useDialog, useMessage } from 'naive-ui';
   import { DownOutlined, AlignLeftOutlined, SearchOutlined, FormOutlined } from '@vicons/antd';
   import { getMenuList } from '@/api/system/menu';
@@ -119,8 +119,16 @@
   const subLoading = ref(false);
   const isEditMenu = ref(false);
   const treeItemTitle = ref('');
+  const treeItemId = ref(0)
   const pattern = ref('');
-  const drawerTitle = ref('');
+
+  // 弹框上级编号
+  const drawerInfo = reactive({
+    title: "",
+    parentId: null
+  })
+  provide('drawerInfo', drawerInfo)
+
 
   const isAddSon = computed(() => {
     return !treeItemKey.value.length;
@@ -140,14 +148,15 @@
   ]);
 
   const formParams = reactive({
+    id: 0,
     type: 1,
     label: '',
-    subtitle: '',
     key: '',
     path: '',
     auth: '',
-    openType: 1,
-    component: ''
+    component: '',
+    icon: '',
+    parent: null
   });
 
   onMounted(() => {
@@ -155,7 +164,13 @@
   })
 
   function selectAddMenu(key: string) {
-    drawerTitle.value = key === 'home' ? '添加顶栏菜单' : `添加子菜单：${treeItemTitle.value}`;
+    if(key === 'home'){
+      drawerInfo.title = '添加顶栏菜单'
+      drawerInfo.parentId = null
+    }else{
+      drawerInfo.title = `添加子菜单：${treeItemTitle.value}`;
+      drawerInfo.parentId = treeItemId.value as any
+    }
     openCreateDrawer();
   }
 
@@ -169,6 +184,7 @@
       const treeItem = getTreeItem(unref(treeData), keys[0]);
       treeItemKey.value = keys;
       treeItemTitle.value = treeItem.label;
+      treeItemId.value = treeItem.id
       Object.assign(formParams, treeItem);
       isEditMenu.value = true;
       canShowRemoveButton.value = treeItem.children && treeItem.children.length ? false : true
@@ -176,6 +192,7 @@
       isEditMenu.value = false;
       treeItemKey.value = [];
       treeItemTitle.value = '';
+      treeItemId.value = 0
     }
   }
 
@@ -202,6 +219,7 @@
   function formSubmit() {
     formRef.value.validate((errors: boolean) => {
       if (!errors) {
+        console.log(formParams)
         message.error('抱歉，您没有该权限');
       } else {
         message.error('请填写完整信息');

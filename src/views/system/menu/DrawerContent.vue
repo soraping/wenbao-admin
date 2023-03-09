@@ -1,5 +1,5 @@
 <template>
-  <n-drawer-content :title="title" closable>
+  <n-drawer-content :title="drawerInfo.title" closable>
     <MenuForm :form-params="formParams" ref="menuFormRef" :isEditMenu="isEditMenu"></MenuForm>
     <template #footer>
       <n-space>
@@ -11,8 +11,10 @@
 </template>
 
 <script lang="ts" setup>
-  import { ref, onMounted, reactive, defineProps, defineEmits } from 'vue'
+  import { ref, onMounted, reactive, defineEmits, inject } from 'vue'
   import { useMessage } from 'naive-ui';
+  import { addMenu } from '@/api/system/menu';
+  import { IMenu } from '@/utils/menu'
   import MenuForm from './menuForm.vue'
 
   const defaultValueRef = () => ({
@@ -20,14 +22,21 @@
     type: 1,
     key: '',
     component: '',
-    openType: 1,
     auth: '',
     path: '',
+    parent: null,
+    icon: ''
   });
 
-  defineProps<{
+  interface IDrawerProps {
+    parentId: any
     title: string
-  }>()
+  }
+
+  const drawerInfo = inject<IDrawerProps>('drawerInfo', {
+    parentId: null,
+    title: ""
+  })
 
   const emit = defineEmits<{
     (e: 'closeDrawer'): void
@@ -48,10 +57,25 @@
   function formSubmit() {
     formRef.value.validate((errors) => {
       if (!errors) {
-        message.success('添加成功');
-        handleReset();
-        // 关闭弹框
-        emit('closeDrawer')
+        let params = {
+          name: formParams.label,
+          key: formParams.key,
+          permission: formParams.auth,
+          parent: drawerInfo.parentId,
+          component: formParams.component,
+          path: formParams.path,
+          icon: formParams.icon,
+          type: formParams.type
+        }
+        console.log('add menu =>', params)
+        addMenu<Partial<IMenu>>(params).then((res) => {
+          console.log(res)
+          message.success('添加成功');
+          handleReset();
+          // 关闭弹框
+          emit('closeDrawer')
+        })
+        
       } else {
         message.error('请填写完整信息');
       }
