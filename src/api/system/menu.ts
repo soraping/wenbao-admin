@@ -34,3 +34,15 @@ export function addMenu<T>(params: T){
     params
   })
 }
+
+/**
+ * 删除菜单
+ * @param id 
+ * @returns 
+ */
+export function delMenu(id){
+  return http.request({
+    url: `/admin/user/menu/del/${id}`,
+    method: 'DELETE'
+  })
+}

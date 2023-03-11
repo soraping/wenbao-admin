@@ -92,7 +92,7 @@
   import { ref, unref, reactive, onMounted, computed, provide } from 'vue';
   import { useDialog, useMessage } from 'naive-ui';
   import { DownOutlined, AlignLeftOutlined, SearchOutlined, FormOutlined } from '@vicons/antd';
-  import { getMenuList } from '@/api/system/menu';
+  import { getMenuList, delMenu } from '@/api/system/menu';
   import { getTreeItem } from '@/utils';
   import { MenuTree } from '@/utils/menu'
   import CreateDrawer from './CreateDrawer.vue';
@@ -203,7 +203,13 @@
       positiveText: '确定',
       negativeText: '取消',
       onPositiveClick: () => {
-        message.success('删除成功');
+        // 当前选中menu
+        console.log('删除menu_id =>', treeItemId.value)
+        delMenu(treeItemId.value).then(res => {
+          console.log(res)
+          // message.success('删除成功');
+        })
+        
       },
       onNegativeClick: () => {
         message.error('已取消');
