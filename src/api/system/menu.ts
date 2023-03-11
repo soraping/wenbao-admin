@@ -46,3 +46,16 @@ export function delMenu(id){
     method: 'DELETE'
   })
 }
+
+/**
+ * 更新
+ * @param params 
+ * @returns 
+ */
+export function updMenu<T>(params: T){
+  return http.request({
+    url: '/admin/user/menu/modify',
+    method: 'POST',
+    params
+  })
+}

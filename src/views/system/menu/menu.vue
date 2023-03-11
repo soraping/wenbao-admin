@@ -92,9 +92,9 @@
   import { ref, unref, reactive, onMounted, computed, provide } from 'vue';
   import { useDialog, useMessage } from 'naive-ui';
   import { DownOutlined, AlignLeftOutlined, SearchOutlined, FormOutlined } from '@vicons/antd';
-  import { getMenuList, delMenu } from '@/api/system/menu';
+  import { getMenuList, delMenu, updMenu } from '@/api/system/menu';
   import { getTreeItem } from '@/utils';
-  import { MenuTree } from '@/utils/menu'
+  import { MenuTree, IMenu} from '@/utils/menu'
   import CreateDrawer from './CreateDrawer.vue';
   import MenuForm from './menuForm.vue'
 
@@ -225,8 +225,22 @@
   function formSubmit() {
     formRef.value.validate((errors: boolean) => {
       if (!errors) {
-        console.log(formParams)
-        message.error('抱歉，您没有该权限');
+        let params = {
+          id: formParams.id,
+          name: formParams.label,
+          key: formParams.key,
+          permission: formParams.auth,
+          parent: formParams.parent as any,
+          component: formParams.component,
+          path: formParams.path,
+          icon: formParams.icon,
+          type: formParams.type
+        }
+        console.log("更新菜单 =>", params)
+        updMenu<Partial<IMenu>>(params).then(res => {
+          console.log(res)
+          // message.error('抱歉，您没有该权限');
+        })
       } else {
         message.error('请填写完整信息');
       }
