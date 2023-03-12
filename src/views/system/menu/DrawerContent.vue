@@ -31,11 +31,13 @@
   interface IDrawerProps {
     parentId: any
     title: string
+    refreshMenuList: () => void
   }
 
   const drawerInfo = inject<IDrawerProps>('drawerInfo', {
     parentId: null,
-    title: ""
+    title: "",
+    refreshMenuList: () => {}
   })
 
   const emit = defineEmits<{
@@ -74,6 +76,7 @@
           handleReset();
           // 关闭弹框
           emit('closeDrawer')
+          drawerInfo.refreshMenuList()
         })
         
       } else {

@@ -125,7 +125,8 @@
   // 弹框上级编号
   const drawerInfo = reactive({
     title: "",
-    parentId: null
+    parentId: null,
+    refreshMenuList: queryMenuList
   })
   provide('drawerInfo', drawerInfo)
 
@@ -161,6 +162,7 @@
 
   onMounted(() => {
     formRef.value = menuFormRef.value.formRef
+    queryMenuList()
   })
 
   function selectAddMenu(key: string) {
@@ -189,11 +191,18 @@
       isEditMenu.value = true;
       canShowRemoveButton.value = treeItem.children && treeItem.children.length ? false : true
     } else {
-      isEditMenu.value = false;
-      treeItemKey.value = [];
-      treeItemTitle.value = '';
-      treeItemId.value = 0
+      clearEditMenu()
     }
+  }
+
+  /**
+   * 清空选择菜单缓存
+   */
+  function clearEditMenu(){
+    isEditMenu.value = false;
+    treeItemKey.value = [];
+    treeItemTitle.value = '';
+    treeItemId.value = 0
   }
 
   function handleDel() {
@@ -207,7 +216,9 @@
         console.log('删除menu_id =>', treeItemId.value)
         delMenu(treeItemId.value).then(res => {
           console.log(res)
-          // message.success('删除成功');
+          message.success('删除成功');
+          clearEditMenu()
+          queryMenuList()
         })
         
       },
@@ -239,7 +250,8 @@
         console.log("更新菜单 =>", params)
         updMenu<Partial<IMenu>>(params).then(res => {
           console.log(res)
-          // message.error('抱歉，您没有该权限');
+          message.success('更新成功');
+          queryMenuList()
         })
       } else {
         message.error('请填写完整信息');
@@ -255,14 +267,18 @@
     }
   }
 
-  onMounted(async () => {
-    let treeMenuList = await getMenuList();
-    let menuTrees = new MenuTree(treeMenuList).genMenuTree()
-    const keys = menuTrees.map((item) => item.key);
-    Object.assign(formParams, keys);
-    treeData.value = menuTrees;
-    loading.value = false;
-  });
+  /**
+   * 获取菜单列表
+   */
+  function queryMenuList(){
+    getMenuList().then(res => {
+      let menuTrees = new MenuTree(res).genMenuTree()
+      const keys = menuTrees.map((item) => item.key);
+      Object.assign(formParams, keys);
+      treeData.value = menuTrees;
+      loading.value = false;
+    })
+  }
 
   function onExpandedKeys(keys) {
     expandedKeys.value = keys;
