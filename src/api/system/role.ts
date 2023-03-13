@@ -11,3 +11,16 @@ export function getRoleList(params) {
     url
   });
 }
+
+/**
+ * 新增角色
+ * @param params 
+ * @returns 
+ */
+export function addRole<T>(params:T) {
+  return http.request({
+    method: 'POST',
+    url: '/admin/user/role/add',
+    params
+  });
+}

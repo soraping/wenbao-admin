@@ -38,7 +38,7 @@
           cascade
           checkable
           :virtual-scroll="true"
-          :data="treeData"
+          :data="permissionTreeData"
           :expandedKeys="expandedKeys"
           :checked-keys="checkedKeys"
           style="max-height: 950px; overflow: hidden"
@@ -63,10 +63,11 @@
 </template>
 
 <script lang="ts" setup>
-  import { reactive, ref, unref, h} from 'vue';
+  import { onMounted, reactive, ref, unref, h} from 'vue';
   import { useMessage } from 'naive-ui';
   import { BasicTable, TableAction } from '@/components/Table';
   import { getRoleList } from '@/api/system/role';
+  import { getPermissionList } from '@/api/system/permission'
   import { columns } from './columns';
   import { PlusOutlined } from '@vicons/antd';
   import { getTreeAll } from '@/utils';
@@ -81,7 +82,7 @@
   const formBtnLoading = ref(false);
   const checkedAll = ref(false);
   const editRoleTitle = ref('');
-  const treeData = ref([]);
+  const permissionTreeData = ref([]);
   const expandedKeys = ref([]);
   const checkedKeys = ref(['console', 'step-form']);
 
@@ -100,7 +101,7 @@
         style: 'button',
         actions: [
           {
-            label: '菜单权限',
+            label: '分配权限',
             onClick: handleMenuAuth.bind(null, record),
             // 根据业务控制是否显示 isShow 和 auth 是并且关系
             ifShow: () => {
@@ -138,7 +139,6 @@
       ...res,
     };
     let roles = await getRoleList(_params);
-    console.log(roles)
     return roles
   };
 
@@ -195,13 +195,13 @@
     if (expandedKeys.value.length) {
       expandedKeys.value = [];
     } else {
-      expandedKeys.value = treeData.value.map((item: any) => item.key) as [];
+      expandedKeys.value = permissionTreeData.value.map((item: any) => item.key) as [];
     }
   }
 
   function checkedAllHandle() {
     if (!checkedAll.value) {
-      checkedKeys.value = getTreeAll(treeData.value);
+      checkedKeys.value = getTreeAll(permissionTreeData.value);
       checkedAll.value = true;
     } else {
       checkedKeys.value = [];
@@ -209,11 +209,10 @@
     }
   }
 
-  // onMounted(async () => {
-  //   const treeMenuList = await getMenuList();
-  //   expandedKeys.value = treeMenuList.list.map((item) => item.key);
-  //   treeData.value = treeMenuList.list;
-  // });
+  onMounted(async () => {
+    const permissionList = await getPermissionList();
+    permissionTreeData.value = permissionList.list;
+  });
 </script>
 
 <style lang="less" scoped></style>
