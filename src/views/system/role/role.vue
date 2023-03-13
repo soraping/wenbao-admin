@@ -2,7 +2,7 @@
   <div>
     <div class="n-layout-page-header">
       <n-card :bordered="false" title="角色权限管理">
-        页面数据为 Mock 示例数据，非真实数据。
+        适用于菜单权限
       </n-card>
     </div>
     <n-card :bordered="false" class="mt-4 proCard">
@@ -63,11 +63,10 @@
 </template>
 
 <script lang="ts" setup>
-  import { reactive, ref, unref, h, onMounted } from 'vue';
+  import { reactive, ref, unref, h} from 'vue';
   import { useMessage } from 'naive-ui';
   import { BasicTable, TableAction } from '@/components/Table';
   import { getRoleList } from '@/api/system/role';
-  import { getMenuList } from '@/api/system/menu';
   import { columns } from './columns';
   import { PlusOutlined } from '@vicons/antd';
   import { getTreeAll } from '@/utils';
@@ -86,9 +85,9 @@
   const expandedKeys = ref([]);
   const checkedKeys = ref(['console', 'step-form']);
 
-  const params = reactive({
+  const pageParams = reactive({
     pageSize: 5,
-    name: 'xiaoMa',
+    pageNo: 1,
   });
 
   const actionColumn = reactive({
@@ -135,10 +134,12 @@
 
   const loadDataTable = async (res: any) => {
     let _params = {
-      ...unref(params),
+      ...unref(pageParams),
       ...res,
     };
-    return await getRoleList(_params);
+    let roles = await getRoleList(_params);
+    console.log(roles)
+    return roles
   };
 
   function onCheckedRow(rowKeys: any[]) {
@@ -208,11 +209,11 @@
     }
   }
 
-  onMounted(async () => {
-    const treeMenuList = await getMenuList();
-    expandedKeys.value = treeMenuList.list.map((item) => item.key);
-    treeData.value = treeMenuList.list;
-  });
+  // onMounted(async () => {
+  //   const treeMenuList = await getMenuList();
+  //   expandedKeys.value = treeMenuList.list.map((item) => item.key);
+  //   treeData.value = treeMenuList.list;
+  // });
 </script>
 
 <style lang="less" scoped></style>

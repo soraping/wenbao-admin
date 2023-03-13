@@ -11,26 +11,26 @@ export const columns = [
     key: 'name',
   },
   {
-    title: '说明',
-    key: 'explain',
+    title: '类型',
+    key: 'type',
   },
   {
     title: '是否默认角色',
-    key: 'isDefault',
+    key: 'is_default',
     render(row) {
       return h(
         NTag,
         {
-          type: row.isDefault ? 'success' : 'error',
+          type: row.is_default ? 'success' : 'error',
         },
         {
-          default: () => (row.isDefault ? '是' : '否'),
+          default: () => (row.is_default ? '是' : '否'),
         }
       );
     },
   },
   {
     title: '创建时间',
-    key: 'create_date',
+    key: 'create_time',
   },
 ];

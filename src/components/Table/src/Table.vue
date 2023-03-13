@@ -189,13 +189,13 @@
 
       //页码切换
       function updatePage(page) {
-        setPagination({ page: page });
+        setPagination({ pageNo: page });
         reload();
       }
 
       //分页数量切换
       function updatePageSize(size) {
-        setPagination({ page: 1, pageSize: size });
+        setPagination({ pageNo: 1, pageSize: size });
         reload();
       }
 

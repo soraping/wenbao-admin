@@ -22,7 +22,7 @@ export function usePagination(refProps: ComputedRef<BasicTableProps>) {
       showQuickJumper: true,
       ...(isBoolean(pagination) ? {} : pagination),
       ...unref(configRef),
-      pageCount: unref(configRef)[totalField],
+      pageTotal: unref(configRef)[totalField],
     };
   });
 
