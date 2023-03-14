@@ -148,6 +148,7 @@
     },
   ]);
 
+
   const formParams = reactive({
     id: 0,
     type: 1,
@@ -157,7 +158,9 @@
     auth: '',
     component: '',
     icon: '',
-    parent: null
+    parent: null,
+    hidden: 1,
+    redirect: ""
   });
 
   onMounted(() => {

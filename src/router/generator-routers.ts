@@ -27,12 +27,15 @@ export const routerGenerator = (routerMap, parent?, allRouters?): any[] => {
       name: item.key || '',
       // 该路由对应页面的 组件
       component: item.component,
+      // 重定向
+      redirect: item.redirect,
       // meta: 页面标题, 菜单图标, 页面权限(供指令权限用，可去掉)
       meta: {
         label: item.name,
         title: item.name,
         icon: constantRouterIcon[item.icon] || null,
-        permissions: [item.permission] || null,
+        permissions: item.permission ? [item.permission] : null,
+        hidden: item.hidden
       }
     };
 

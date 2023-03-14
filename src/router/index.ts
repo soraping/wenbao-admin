@@ -4,21 +4,21 @@ import { RedirectRoute } from '@/router/base';
 import { PageEnum } from '@/enums/pageEnum';
 import { createRouterGuards } from './router-guards';
 
-const modules = import.meta.globEager('./modules/**/*.ts');
+// const modules = import.meta.globEager('./modules/**/*.ts');
 
-const routeModuleList: RouteRecordRaw[] = [];
+// const routeModuleList: RouteRecordRaw[] = [];
 
-Object.keys(modules).forEach((key) => {
-  const mod = modules[key].default || {};
-  const modList = Array.isArray(mod) ? [...mod] : [mod];
-  routeModuleList.push(...modList);
-});
+// Object.keys(modules).forEach((key) => {
+//   const mod = modules[key].default || {};
+//   const modList = Array.isArray(mod) ? [...mod] : [mod];
+//   routeModuleList.push(...modList);
+// });
 
-function sortRoute(a, b) {
-  return (a.meta?.sort || 0) - (b.meta?.sort || 0);
-}
+// function sortRoute(a, b) {
+//   return (a.meta?.sort || 0) - (b.meta?.sort || 0);
+// }
 
-routeModuleList.sort(sortRoute);
+// routeModuleList.sort(sortRoute);
 
 export const RootRoute: RouteRecordRaw = {
   path: '/',
@@ -38,8 +38,8 @@ export const LoginRoute: RouteRecordRaw = {
   },
 };
 
-//需要验证权限
-export const asyncRoutes = [...routeModuleList];
+// //需要验证权限
+// export const asyncRoutes = [...routeModuleList];
 
 //普通路由 无需验证权限
 export const constantRouter: any[] = [LoginRoute, RootRoute, RedirectRoute];

@@ -15,6 +15,7 @@ export interface IMenu {
     redirect: string
     component: string
     sort: number
+    hidden: number
 }
 
 /**
@@ -25,7 +26,8 @@ interface IMenuTree {
     label: string
     path: string
     name: string
-    subtitle: string,
+    subtitle: string
+    redirect: string
     key: string
     component: string
     auth: string
@@ -37,6 +39,7 @@ interface IMenuTree {
         title: string
         icon: string
         permission: string
+        hidden: number
     }
     children: Partial<IMenuTree>[]
 }
@@ -57,6 +60,7 @@ export class MenuTree {
             type: menu.type,
             key: menu.key,
             path: menu.path,
+            redirect: menu.redirect,
             auth: menu.permission,
             component: menu.component,
             parent: menu.parent,
@@ -66,7 +70,8 @@ export class MenuTree {
                 label: menu.name as string,
                 title: menu.name as string,
                 icon: menu.icon as string,
-                permission: menu.permission as string
+                permission: menu.permission as string,
+                hidden: menu.hidden as number
             }
         }
     }

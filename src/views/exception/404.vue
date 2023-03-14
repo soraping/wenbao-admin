@@ -12,9 +12,10 @@
 
 <script lang="ts" setup>
   import { useRouter } from 'vue-router';
+  import { PageEnum } from '@/enums/pageEnum'
   const router = useRouter();
   function goHome() {
-    router.push('/');
+    router.push(PageEnum.BASE_HOME);
   }
 </script>
 
