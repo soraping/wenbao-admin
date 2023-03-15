@@ -25,7 +25,9 @@
     auth: '',
     path: '',
     parent: null,
-    icon: ''
+    icon: '',
+    redirect: "",
+    hidden: 0
   });
 
   interface IDrawerProps {
@@ -67,7 +69,9 @@
           component: formParams.component,
           path: formParams.path,
           icon: formParams.icon,
-          type: formParams.type
+          type: formParams.type,
+          redirect: formParams.redirect,
+          hidden: formParams.hidden
         }
         console.log('add menu =>', params)
         addMenu<Partial<IMenu>>(params).then((res) => {

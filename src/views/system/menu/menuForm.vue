@@ -19,7 +19,7 @@
         <n-form-item label="跳转路径" path="path">
           <n-input placeholder="请输入路径" v-model:value="formParams.path" />
         </n-form-item>
-        <n-form-item v-if="isParentForm" label="重定向" path="redirect">
+        <n-form-item label="重定向" path="redirect">
           <n-input placeholder="请输入路径" v-model:value="formParams.redirect" />
         </n-form-item>
         <n-form-item label="模块路径" path="component">
@@ -31,11 +31,11 @@
         <n-form-item label="图标" path="icon">
           <n-input placeholder="请输入图标名称" v-model:value="formParams.icon" />
         </n-form-item>
-        <n-form-item v-if="isParentForm" label="是否展示" path="hidden">
-          <n-radio-group default-value=0 v-model:value="formParams.parent" name="hidden">
+        <n-form-item label="是否展示" path="hidden">
+          <n-radio-group v-model:value="formParams.hidden" name="hidden">
             <n-space>
-              <n-radio :value=0>展示</n-radio>
-              <n-radio :value=1>隐藏</n-radio>
+              <n-radio :value=0 >展示</n-radio>
+              <n-radio :value=1 >隐藏</n-radio>
             </n-space>
           </n-radio-group>
         </n-form-item>
@@ -88,15 +88,6 @@
   }>()
 
   const formRef = ref();
-
-  // 是否是parent表单
-  const isParentForm = ref(true)
-
-  // 子组件的表单
-  if(formParams.parent){
-    isParentForm.value = false
-  }
-
 
   defineExpose({
     formRef 

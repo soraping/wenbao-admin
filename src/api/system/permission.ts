@@ -21,3 +21,16 @@ export function getPermissionByRole(role_id: number){
     url: `/admin/user/permission/role/${role_id}`
   });
 }
+
+/**
+ * 根据个人角色设置权限
+ * @param params 
+ * @returns 
+ */
+export function modifyPermissionByRole(params){
+  return http.request({
+    method: 'POST',
+    url: `/admin/user/permission-role/modify`,
+    params
+  });
+}

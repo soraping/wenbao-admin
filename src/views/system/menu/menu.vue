@@ -159,7 +159,7 @@
     component: '',
     icon: '',
     parent: null,
-    hidden: 1,
+    hidden: 0,
     redirect: ""
   });
 
@@ -248,7 +248,9 @@
           component: formParams.component,
           path: formParams.path,
           icon: formParams.icon,
-          type: formParams.type
+          type: formParams.type,
+          redirect: formParams.redirect,
+          hidden: formParams.hidden
         }
         console.log("更新菜单 =>", params)
         updMenu<Partial<IMenu>>(params).then(res => {
