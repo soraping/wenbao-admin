@@ -14,7 +14,7 @@ export function usePagination(refProps: ComputedRef<BasicTableProps>) {
     if (!unref(show) || (isBoolean(pagination) && !pagination)) {
       return false;
     }
-    const { totalField } = APISETTING;
+    const { totalField, itemCountField } = APISETTING;
     return {
       pageSize: DEFAULTPAGESIZE,
       pageSizes: PAGESIZES,
@@ -22,7 +22,10 @@ export function usePagination(refProps: ComputedRef<BasicTableProps>) {
       showQuickJumper: true,
       ...(isBoolean(pagination) ? {} : pagination),
       ...unref(configRef),
-      pageTotal: unref(configRef)[totalField],
+      pageCount: unref(configRef)[totalField],
+      prefix () {
+        return `列表总数: ${unref(configRef)[itemCountField] || 0}`
+      }
     };
   });
 

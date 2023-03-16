@@ -15,7 +15,7 @@
         @update:checked-row-keys="onCheckedRow"
       >
         <template #tableTitle>
-          <n-button type="primary">
+          <n-button type="primary" @click="addRole">
             <template #icon>
               <n-icon>
                 <PlusOutlined />
@@ -32,7 +32,7 @@
     </n-card>
 
     <!-- 给角色分配权限 -->
-    <n-modal v-model:show="showModal" :show-icon="false" preset="dialog" :title="editRoleTitle">
+    <n-modal v-model:show="showRolePermissionModal" :show-icon="false" preset="dialog" :title="editRoleTitle">
       <div class="py-3 menu-list">
         <n-tree
           block-line
@@ -57,14 +57,40 @@
         </n-space>
       </template>
     </n-modal>
+
+    <!-- 新增角色弹框 -->
+    <n-modal v-model:show="showAddRoleModal" :show-icon="false" preset="dialog" title="新建角色">
+      <n-form
+        :model="addRoleFormParams"
+        :rules="addRoleRules"
+        ref="addRoleFormRef"
+        label-placement="left"
+        :label-width="80"
+        class="py-4"
+      >
+        <n-form-item label="角色名称" path="name">
+          <n-input placeholder="请输入角色名称" v-model:value="addRoleFormParams.name" />
+        </n-form-item>
+        <n-form-item label="角色标识" path="type">
+          <n-input placeholder="请输入角色标识" v-model:value="addRoleFormParams.type" />
+        </n-form-item>
+      </n-form>
+
+      <template #action>
+        <n-space>
+          <n-button @click="() => (showAddRoleModal = false)">取消</n-button>
+          <n-button type="info" :loading="addRoleFormBtnLoading" @click="addRoleConfirmForm">确定</n-button>
+        </n-space>
+      </template>
+    </n-modal>
   </div>
 </template>
 
 <script lang="ts" setup>
   import { onMounted, reactive, ref, unref, h} from 'vue';
-  import { useMessage } from 'naive-ui';
+  import { useMessage, useDialog } from 'naive-ui';
   import { BasicTable, TableAction } from '@/components/Table';
-  import { getRoleList } from '@/api/system/role';
+  import { getRoleList, addRoleApi, delRoleApi } from '@/api/system/role';
   import { getPermissionList, getPermissionByRole, modifyPermissionByRole } from '@/api/system/permission'
   import { columns } from './columns';
   import { PlusOutlined } from '@vicons/antd';
@@ -74,10 +100,16 @@
   const router = useRouter();
   // const formRef: any = ref(null);
   const message = useMessage();
+  const dialog = useDialog()
+
   const actionRef = ref();
 
-  const showModal = ref(false);
+  // 角色分配弹框
+  const showRolePermissionModal = ref(false);
   const formBtnLoading = ref(false);
+
+  // 新增角色弹框
+  const showAddRoleModal = ref(false)
 
   // 权限分配
   const permissionCheckedAll = ref(false);
@@ -88,6 +120,36 @@
   // 分配权限弹框标题
   const editRoleTitle = ref('');
 
+
+  // 新增角色
+  const addRoleFormBtnLoading = ref(false)
+  const addRoleFormRef = ref()
+  interface IAddRoleForm {
+    name: string
+    type: string
+    is_default: 0 | 1
+  }
+  const addRoleRules = {
+    name: {
+      required: true,
+      trigger: ['blur', 'input'],
+      message: '请输入角色名称',
+    },
+    type: {
+      required: true,
+      trigger: ['blur', 'input'],
+      message: '请输入角色标识',
+    },
+  };
+  const addRoleFormParams: IAddRoleForm = reactive({
+    name: '',
+    type: '',
+    is_default: 0
+  })
+
+  
+
+  // 权限部分
   interface IPermission {
     label: string
     value: string
@@ -126,14 +188,14 @@
             // 根据权限控制是否显示: 有权限，会显示，支持多个
             auth: ['dashboard_workplace'],
           },
-          {
-            label: '编辑',
-            onClick: handleEdit.bind(null, record),
-            ifShow: () => {
-              return true;
-            },
-            auth: ['dashboard_workplace'],
-          },
+          // {
+          //   label: '编辑',
+          //   onClick: handleEdit.bind(null, record),
+          //   ifShow: () => {
+          //     return true;
+          //   },
+          //   auth: ['dashboard_workplace'],
+          // },
           {
             label: '删除',
             onClick: handleDelete.bind(null, record),
@@ -162,24 +224,74 @@
     console.log(rowKeys);
   }
 
-  // function reloadTable() {
-  //   actionRef.value.reload();
-  // }
-
-  function handleEdit(record: Recordable) {
-    console.log('点击了编辑', record);
-    router.push({ name: 'basic-info', params: { id: record.id } });
+    // 新增 role 
+  function addRole(){
+    showAddRoleModal.value = true
   }
 
+  // 新增 role
+  function addRoleConfirmForm(){
+    addRoleFormBtnLoading.value = true
+    addRoleFormRef.value.validate((errors) => {
+      if(!errors){
+        addRoleApi<IAddRoleForm>({
+          name: addRoleFormParams.name,
+          type: addRoleFormParams.type,
+          is_default: 0
+        }).then(res => {
+          message.success('新增角色成功')
+          reloadTable()
+          addRoleFormBtnLoading.value = false
+        }, (err) => {
+          addRoleFormBtnLoading.value = false
+        })
+        
+      }else{
+        message.error('请按要求输入');
+        addRoleFormBtnLoading.value = false
+      }
+    })
+  }
+
+  /**
+   * 刷新角色列表
+   */
+  function reloadTable() {
+    actionRef.value.reload();
+  }
+
+  // function handleEdit(record: Recordable) {
+  //   console.log('点击了编辑', record);
+  //   router.push({ name: 'basic-info', params: { id: record.id } });
+  // }
+
+  // 删除角色
   function handleDelete(record: Recordable) {
     console.log('点击了删除', record);
-    message.info('点击了删除');
+    dialog.info({
+      title: '提示',
+      content: `您确定想删除此角色吗?`,
+      positiveText: '确定',
+      negativeText: '取消',
+      onPositiveClick: () => {
+        // 当前选中menu
+        console.log('删除role_id =>', record.id)
+        delRoleApi(record.id).then(res => {
+          reloadTable()
+          message.success('删除成功');
+        })
+        
+      },
+      onNegativeClick: () => {
+        
+      },
+    });
   }
 
   function handleMenuAuth(record: Recordable) {
     editRoleTitle.value = `分配 ${record.name} 的菜单权限`;
     checkedKeys.value = record.menu_keys;
-    showModal.value = true;
+    showRolePermissionModal.value = true;
 
     // 当前角色已分配的权限
     let role_id = record.id
@@ -232,7 +344,7 @@
     }
     modifyPermissionByRole(params).then(res => {
       message.success('设置成功');
-      showModal.value = false;
+      showRolePermissionModal.value = false;
     }).finally(() => {
       formBtnLoading.value = false;
     })
@@ -242,7 +354,7 @@
 
     //     message.success('设置成功');
     //     setTimeout(() => {
-    //       showModal.value = false;
+    //       showRolePermissionModal.value = false;
     //       // reloadTable();
     //     });
     //   } else {

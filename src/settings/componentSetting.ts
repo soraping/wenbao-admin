@@ -8,7 +8,9 @@ export default {
       // 接口返回的数据字段名
       listField: 'dataList',
       // 接口返回总页数字段名
-      totalField: 'pageTotal',
+      totalField: 'pageCount',
+      // 列表数量总数
+      itemCountField: 'total'
     },
     //默认分页数量
     defaultPageSize: 10,

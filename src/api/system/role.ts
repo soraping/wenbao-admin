@@ -17,10 +17,22 @@ export function getRoleList(params) {
  * @param params 
  * @returns 
  */
-export function addRole<T>(params:T) {
+export function addRoleApi<T>(params:T) {
   return http.request({
     method: 'POST',
     url: '/admin/user/role/add',
     params
+  });
+}
+
+/**
+ * 删除角色
+ * @param role_id 
+ * @returns 
+ */
+export function delRoleApi(role_id){
+  return http.request({
+    method: 'DELETE',
+    url: `/admin/user/role/del/${role_id}`
   });
 }
