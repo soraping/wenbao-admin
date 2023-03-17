@@ -95,9 +95,9 @@
   import { columns } from './columns';
   import { PlusOutlined } from '@vicons/antd';
   import { getTreeAll } from '@/utils';
-  import { useRouter } from 'vue-router';
+  // import { useRouter } from 'vue-router';
 
-  const router = useRouter();
+  // const router = useRouter();
   // const formRef: any = ref(null);
   const message = useMessage();
   const dialog = useDialog()
@@ -270,7 +270,7 @@
     console.log('点击了删除', record);
     dialog.info({
       title: '提示',
-      content: `您确定想删除此角色吗?`,
+      content: `您确定想删除【${record['name']}】这个角色吗?`,
       positiveText: '确定',
       negativeText: '取消',
       onPositiveClick: () => {
