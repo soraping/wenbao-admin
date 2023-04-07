@@ -26,3 +26,16 @@ export function addMemberApi(params){
     params
   })
 }
+
+/**
+ * 更新会员状态
+ * @param id 
+ * @param status 
+ * @returns 
+ */
+export function modifyMemberStatus(id, status){
+  return http.request({
+    url: `/admin/user/member/modify/${id}/${status}`,
+    method: 'put'
+  })
+}

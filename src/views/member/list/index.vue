@@ -1,10 +1,15 @@
 <template>
   <div>
     <div class="n-layout-page-header">
-      <n-card :bordered="false" title="会员列表">
-      </n-card>
 
-      <n-card :bordered="false" class="mt-4 proCard">
+      <n-card :bordered="false" class="proCard">
+
+      <BasicForm @register="register" @submit="handleSearchSubmit" @reset="handleSearchReset">
+        <template #statusSlot="{ model, field }">
+          <n-input v-model:value="model[field]" />
+        </template>
+      </BasicForm>
+
       <BasicTable
         :columns="columns"
         :request="loadMemberListTable"
@@ -42,17 +47,17 @@
         class="py-4"
       >
         <n-form-item label="会员名称" path="username">
-          <n-input placeholder="请输入会员名称" v-model:value="addUserFormParams.username" />
+          <n-input placeholder="请输入会员名称" v-model:value="addUserFormParams.username" maxlength=20 />
         </n-form-item>
         <n-form-item label="手机号" path="mobile">
-          <n-input placeholder="请输入手机号" v-model:value="addUserFormParams.mobile" />
+          <n-input type="number" placeholder="请输入手机号" v-model:value="addUserFormParams.mobile" maxlength=20 />
         </n-form-item>
       </n-form>
 
       <template #action>
         <n-space>
           <n-button @click="() => (showAddUserModal = false)">取消</n-button>
-          <n-button type="info" :loading="addUserFormBtnLoading" @click="addRoleConfirmForm">确定</n-button>
+          <n-button type="info" :loading="addUserFormBtnLoading" @click="addUserConfirmForm">确定</n-button>
         </n-space>
       </template>
     </n-modal>
@@ -67,14 +72,22 @@
     unref,
     h
   } from 'vue'
+  import { useMessage, useDialog } from 'naive-ui';
+  import { BasicForm, useForm } from '@/components/Form/index';
   import { PlusOutlined } from '@vicons/antd';
-  import { memberListApi, addMemberApi } from '@/api/member/index'
+  import { memberListApi, addMemberApi, modifyMemberStatus } from '@/api/member/index'
   import { columns } from './columns'
+  import { memberSearchSchemas } from './searchSchema'
   import { BasicTable, TableAction } from '@/components/Table';
+
+  const message = useMessage();
+  const dialog = useDialog()
 
   const pageParams = reactive({
       pageSize: 10,
       pageNo: 1,
+      username: '',
+      mobile: ''
     });
 
   const addUserRules = {
@@ -90,13 +103,30 @@
     },
   }
 
+  const memberListTableRef = ref()
+
   const loadMemberListTable = async (res: any) => {
     let _params = {
         ...unref(pageParams),
         ...res,
       };
-      let roles = await memberListApi(_params);
-      return roles
+      let userList = await memberListApi(_params);
+      return userList
+  }
+
+  // 筛选
+  const [register, {}] = useForm({
+    gridProps: { cols: '1 s:1 m:2 l:3 xl:4 2xl:4' },
+    labelWidth: 80,
+    schemas: memberSearchSchemas,
+  });
+  function handleSearchSubmit(values: Recordable){
+    pageParams.mobile = values.mobile || ""
+    pageParams.username = values.username || ""
+    reloadTable()
+  }
+  function handleSearchReset(values: Recordable){
+    console.log(values);
   }
 
   // 新建会员
@@ -113,11 +143,27 @@
     username: '',
     mobile: ''
   })
-  function addRoleConfirmForm(){
-
+  function addUserConfirmForm(e){
+    e.preventDefault();
+    addUserFormBtnLoading.value = true
+    addMemberApi(addUserFormParams).then(res => {
+      message.success('设置成功');
+      reloadTable()
+      showAddUserModal.value = false
+      addUserFormParams.mobile = ''
+      addUserFormParams.username = ''
+    }).finally(() => {
+      addUserFormBtnLoading.value = false
+    })
   }
 
 
+  /**
+   * 刷新会员列表
+   */
+  function reloadTable() {
+    memberListTableRef.value.reload();
+  }
 
   /**
    * 批量选择
@@ -132,7 +178,7 @@
     key: 'action',
     fixed: 'right',
     render(record) {
-      return h(TableAction, {
+      return h(TableAction as any, {
         style: 'button',
         actions: [
           {
@@ -144,6 +190,41 @@
             },
             // 根据权限控制是否显示: 有权限，会显示，支持多个
             auth: ['dashboard_workplace'],
+          },
+          // {
+          //   label: '编辑',
+          //   onClick: handleMemberEdit.bind(null, record),
+          //   ifShow: () => {
+          //     return true;
+          //   },
+          //   auth: ['dashboard_workplace'],
+          // },
+          {
+            label: '锁定',
+            type: 'warning',
+            onclick: handleMemberStatus.bind(null, record, 2),
+            ifShow: () => {
+              return record.status != 2;
+            },
+            auth: ['dashboard_workplace'],
+          },
+          {
+            label: '解除锁定',
+            type: 'warning',
+            onclick: handleMemberStatus.bind(null, record, 1),
+            ifShow: () => {
+              return record.status == 2;
+            },
+            auth: ['dashboard_workplace'],
+          },
+          {
+            label: '删除',
+            type: 'error',
+            onclick: handleMemberStatus.bind(null, record, 0),
+            ifShow: () => {
+              return true;
+            },
+            auth: ['dashboard_workplace'],
           }
         ],
       });
@@ -153,5 +234,31 @@
   function handleMemberInfo(record){
     console.log('user-info => ', record)
   }
+
+  function handleMemberStatus(record, status){
+    let statusMsg = `您确定要删除 【${record['username']}】这个会员吗？`
+    if(status != 0){
+      statusMsg = status == 2 ? `您确定要锁定 【${record['username']}】这个会员吗？` : `您确定要解除锁定 【${record['username']}】这个会员吗？`
+    }
+    dialog.warning({
+      title: '警告',
+      content: statusMsg,
+      positiveText: '确定',
+      negativeText: '取消',
+      onPositiveClick: () => {
+        modifyMemberStatus(record.id, status).then(res => {
+          message.success('设置成功');
+          reloadTable()
+        })
+      },
+      onNegativeClick: () => {
+        
+      },
+    });
+  }
+
+  // function handleMemberEdit(record){
+  //   console.log('user-edit => ', record)
+  // }
 
 </script>
